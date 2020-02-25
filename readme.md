@@ -4,19 +4,17 @@ This project contains our proposed solution to the [first Mini Project described
 
 ## a) formulating specifications
 
-We have formulated the specifications by answering the all of the following points.
+We have formulated the specifications by answering all of the following points.
 
 ## b) creating appropriate data model
 
-From the business requirments we initially created the following ER diagram:  
+From the business requirments we created the following ER diagram:  
 ![](./img/Mini_projekt_1_ER_Diagram.png)
-
-# TODO: Indsæt det endelige ER diagram
 
 ## c) creating and populating the database with sufficient test data
 
-In this repository there is a few scripts to create and populate the data, as well as create functions and views. We have combined the scripts to one long script, which you can just import into your workbench and execute.  
-To create and populate the database run the following script which can be [downloaded here](./populate_tables.sql)
+To create and populate the database run the following script which can be [downloaded here.](./populate_tables.sql)  
+We have also split the different sql queries into parts to make it more readable. These files can be found in this repository.
 
 ## d) programming the requested functionality in SQL
 
@@ -24,7 +22,7 @@ The requested functionality as described by the business requirements are as fol
 Search and retrieve information such as, but not limited to:
 
 1. current availability of a specific book  
-   To get the vailability of a specific book we have created the following view:
+   To get the availability of a specific book we have created the following view:
 
 ```sql
 create or replace view book_transactions as
@@ -33,15 +31,15 @@ create or replace view book_transactions as
     JOIN client_book_transaction as cbt on cbt.client_id=c.id
     JOIN book as b on b.id = cbt.book_id
     JOIN book_info as bi ON bi.isbn = b.book_info_isbn
-    where cbt.returned = 'f';
+    where cbt.returned = 't';
 ```
 
 To get the availability from the view, the following query should be called:  
-`SELECT * FROM overdue_books ob WHERE ob.id=ID`  
+`SELECT * FROM book_transactions bt WHERE bt.client_id=ID`  
 where ID is the ID of the book you want to get the availability for.  
 Another, probably better solution would be to add another field on book to see if it is available. This would avoid having to make these JOINs.
 
-2. most popular book title among high scool students in a specific period of time
+2. most popular book title among high scool students in a specific period of time.  
    To get the most popular book for students over a specific period of a time we have created the following function which returns a table with the data:
 
 ```sql
@@ -133,7 +131,7 @@ According to the business requirements the following contraints were implemented
 
 1. Books can be ordered and borrowed by registered clients, only.
 
-   We created a role called unregistered which we assume will be used if no user have been logged in from the frontend. This role has only **SELECT** privilege on the book and book_info tables. For registered users we have created the client role which is allowed to loan books. For more detailed **ROLE** and **USER** overview,
+   We created a role called unregistered which we assume will be used if no user have been logged in from the frontend. This role has only **SELECT** privilege on the book and book_info tables. Which means they can only search for books. For registered users we have created the client role which is allowed to loan books. For more detailed **ROLE** and **USER** overview,
    read the last section i).
 
 2. The allowable loan period, as well as the number of books in a loan can vary. (For example, students can loan maximum three books at a time, teachers can have up to two, while other borrowers can take just one)
@@ -174,14 +172,23 @@ In this function we check how the current amount of books the client has compare
 
 ## f) add constrains ensuring referential integrity
 
+When referring to rows in other tables we always use the primary key from the referred table as a foreign key. As we do not **DELETE** rows from our tables, **CASCADE** is not needed.
+
 ## g) keeping transactions ACID and protected against blocking and deadlocks
 
-For all of your **INSERT** and **UPDATE** queries we use the default isolation level READ COMMITTED which prevents dirty reads.  
-Whenever we want to read from tables we use the SERIALIZABLE isolation level, to ensure we have consistent data.
+For all of our **INSERT** and **UPDATE** queries we use the default isolation level for Postgres **READ COMMITTED** which prevents dirty reads.  
+Whenever you want to read from tables you should use the SERIALIZABLE isolation level, to ensure you have consistent data.
+
+```sql
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN TRANSACTION;
+SELECT * FROM find_book('Harry Potter');
+COMMIT;
+```
 
 ## h) considering optimization of the queries
 
-We have not added any indexes as it did not improve the performance of the queries. However this could be due to the small amount of sample data we have populated the database with. We have tested the following index:  
+We have not added any indexes as it did not improve the performance of the queries. However this could be due to the sample data being too small and PostgreSQL selecting sequential search as a faster option. We have tested the following index:  
 `create index isbn_index on book(book_info_isbn);`  
 **Before indexing:**  
 ![](./img/index1.png)  
@@ -250,8 +257,8 @@ We have created four roles:
 ### Additional permissions:
 
 **client**: **EXECUTE** the loan_book function. **SELECT** on **SEQUENCE** client_book_transaction_id_seq.  
-**worker**: **SELECT** on all tables. **INSERT, DELETE, UPDATE** on book, book_info. **SELECT** on **sequence** book_id_seq.  
-**admin**: **PRIVILIGES** on all sequences.
+**worker**: **SELECT** on all tables. **INSERT, DELETE, UPDATE** on book, book_info. **SELECT** on **SEQUENCE** book_id_seq.  
+**admin**: **PRIVILEGES** on all sequences.
 
 ### Users
 
