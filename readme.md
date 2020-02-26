@@ -22,22 +22,29 @@ The requested functionality as described by the business requirements are as fol
 Search and retrieve information such as, but not limited to:
 
 1. current availability of a specific book  
-   To get the availability of a specific book we have created the following view:
+   To get the availability of a specific book we have created the following function:
 
 ```sql
-create or replace view book_transactions as
-    select c.id as client_id, cbt.returned, cbt.return_date, bi.isbn, bi.title, bi.edition, bi.publisher, bi.published, bi.pages, bi.description
-    from client as c
-    JOIN client_book_transaction as cbt on cbt.client_id=c.id
-    JOIN book as b on b.id = cbt.book_id
+CREATE OR REPLACE FUNCTION public.book_available(param_book_id integer)
+ RETURNS TABLE(isbn character varying, available boolean, title varchar(256), edition integer, publisher varchar(256), published date, pages integer, description text)
+ LANGUAGE plpgsql
+AS $function$ 
+begin
+	return query select bi.isbn, cbt.returned as available, bi.title, bi.edition, bi.publisher, bi.published, bi.pages, bi.description
+    from book as b
+    JOIN client_book_transaction as cbt on cbt.book_id = b.id
     JOIN book_info as bi ON bi.isbn = b.book_info_isbn
-    where cbt.returned = 't';
+    where cbt.id = (select max(id) from client_book_transaction where book_id = param_book_id);
+end;
+$function$
+;
+
 ```
 
-To get the availability from the view, the following query should be called:  
-`SELECT * FROM book_transactions bt WHERE bt.client_id=ID`  
+
+To get the availability from the function, the following query should be called:  
+`select * from book_available(ID);`  
 where ID is the ID of the book you want to get the availability for.  
-Another, probably better solution would be to add another field on book to see if it is available. This would avoid having to make these JOINs.
 
 2. most popular book title among high scool students in a specific period of time.  
    To get the most popular book for students over a specific period of a time we have created the following function which returns a table with the data:
