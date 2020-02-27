@@ -50,8 +50,6 @@ where ID is the ID of the book you want to get the availability for.
    To get the most popular book for students over a specific period of a time we have created the following function which returns a table with the data:
 
 ```sql
-DROP FUNCTION IF EXISTS most_popular_book(date,date);
-
 CREATE OR REPLACE FUNCTION most_popular_book(start_date date, end_date date)
 RETURNS TABLE
 (
@@ -65,8 +63,8 @@ begin
     join book b ON b.book_info_isbn = bi.isbn
     join client_book_transaction cbt on cbt.book_id = b.id
     join client c on cbt.client_id = c.id
-    where cbt.loan_date > '2019-01-01'
-    and cbt.loan_date < '2020-08-08' and c.role_id = 3) as st
+    where cbt.loan_date > start_date
+    and cbt.loan_date < end_date and c.role_id = 3) as st
     group by st.isbn, st.title
     order by ct desc limit 1;
 end;
