@@ -144,33 +144,42 @@ According to the business requirements the following contraints were implemented
    We created the following function for when books are to be loaned:
 
 ```sql
-CREATE OR REPLACE FUNCTION loan_book(client_id int, book_id int)
-RETURNS boolean AS $$
-DECLARE
-    can_loan boolean := false;
+CREATE OR REPLACE PROCEDURE public.loan_book(client_id integer, book_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+DECLARE 
     client_no_books integer;
     role_book_limit integer;
-    book_type text;
-BEGIN
+    var_book_type text;
+    var_loan_days integer;
+    
+BEGIN 
     SELECT no_books INTO client_no_books FROM client c WHERE c.id=client_id;
     SELECT book_limit INTO role_book_limit FROM role r JOIN client c ON c.role_id=r.id AND c.id=client_id;
-    SELECT type INTO book_type FROM book b WHERE b.id=book_id;
-    IF client_no_books < role_book_limit THEN
-        can_loan := true;
+    SELECT book_type INTO var_book_type FROM book b WHERE b.id=book_id;
+    SELECT loan_days INTO var_loan_days FROM role r JOIN client c ON c.id=client_id AND c.role_id=r.id;
+    
+    IF client_no_books < role_book_limit THEN 
+        
         UPDATE client SET no_books=no_books+1 WHERE client.id=client_id;
-        CASE book_type
+        CASE var_book_type
             WHEN 'printed'
-                THEN UPDATE book_info SET avail_printed=avail_printed-1 FROM book_info JOIN book WHERE book_info.isbn=book.book_info_isbn;
+                THEN UPDATE book_info SET avail_printed=avail_printed-1 FROM book WHERE book_info.isbn=book.book_info_isbn; 
             WHEN 'electronic'
-                THEN UPDATE book_info SET avail_electronic=avail_electronic-1 FROM book_info JOIN book WHERE book_info.isbn=book.book_info_isbn;
+                THEN UPDATE book_info SET avail_electronic=avail_electronic-1 FROM book WHERE book_info.isbn=book.book_info_isbn;
             WHEN 'rare'
-                THEN UPDATE book_info SET avail_rare=avail_rare-1 FROM book_info JOIN book WHERE book_info.isbn=book.book_info_isbn;
-        INSERT INTO transaction (client_id, book_id, loan_date, return_date, returned)
-
+                THEN UPDATE book_info SET avail_rare=avail_rare-1 FROM book WHERE book_info.isbn=book.book_info_isbn;
+        END CASE;
+        INSERT INTO client_book_transaction (client_id, book_id, loan_date, return_date) VALUES (client_id, book_id, CURRENT_DATE, CURRENT_DATE + (var_loan_days * INTERVAL '1 day'));
+        RAISE NOTICE 'Loan successful';
+    ELSE
+        RAISE EXCEPTION 'Client book limit exceeded max book limit of %', role_book_limit
+          USING HINT = 'Please return books to loan more';
+    
     END IF;
-    RETURN can_loan;
 END;
-$$ LANGUAGE plpgsql;
+$procedure$
+;
 ```
 
 In this function we check how the current amount of books the client has compares to the book loan limit on the role.
