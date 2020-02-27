@@ -144,7 +144,7 @@ According to the business requirements the following contraints were implemented
    We created the following function for when books are to be loaned:
 
 ```sql
-CREATE OR REPLACE PROCEDURE public.loan_book(client_id integer, book_id integer)
+CREATE OR REPLACE PROCEDURE loan_book(client_id integer, book_id integer)
  LANGUAGE plpgsql
 AS $procedure$
 DECLARE 
