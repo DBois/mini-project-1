@@ -25,7 +25,7 @@ Search and retrieve information such as, but not limited to:
    To get the availability of a specific book we have created the following function:
 
 ```sql
-CREATE OR REPLACE FUNCTION public.book_available(param_book_id integer)
+CREATE OR REPLACE FUNCTION book_available(param_book_id integer)
  RETURNS TABLE(isbn character varying, available boolean, title varchar(256), edition integer, publisher varchar(256), published date, pages integer, description text)
  LANGUAGE plpgsql
 AS $function$ 
@@ -89,8 +89,6 @@ create or replace view overdue_books as
     where cbt.returned = 'f'
     and cbt.return_date < current_date;
 ```
-
-Looking back, this view could be replaced by a function that simply searches the `book_transactions` view mentioned in 1. with the last line from `overdue_books`.
 
 In addition to the requested features we implemented these:
 
