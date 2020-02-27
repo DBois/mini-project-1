@@ -76,13 +76,16 @@ join client_book_transaction as cbt on c.id = cbt.client_id
 JOIN book as b on cbt.book_id = b.id 
 JOIN book_info as bi ON b.book_info_isbn  = bi.isbn;
 
-create or replace view book_transaction as
-select c.id as client_id, bi.isbn, bi.title, bi.edition, bi.publisher, bi.published, bi.pages, bi.description
-from client as c
-JOIN client_book_transaction as cbt on cbt.client_id=c.id 
-JOIN book as b on b.id = cbt.book_id 
-JOIN book_info as bi ON bi.isbn = b.book_info_isbn 
-where cbt.returned = 'f';
+drop view if exists overdue_books;
+
+create or replace view overdue_books as
+    select c.id as client_id, cbt.returned, cbt.return_date, bi.isbn, bi.title, bi.edition, bi.publisher, bi.published, bi.pages, bi.description
+    from client as c
+    JOIN client_book_transaction as cbt on cbt.client_id=c.id
+    JOIN book as b on b.id = cbt.book_id
+    JOIN book_info as bi ON bi.isbn = b.book_info_isbn
+    where cbt.returned = 'f'
+    and cbt.return_date < current_date;
 
 
 -- Functions, stored procedures and triggers
