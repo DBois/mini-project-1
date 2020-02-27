@@ -128,7 +128,7 @@ $$ language 'plpgsql';
 ```
 
 To use this function to search for books, use the following query:  
-`SELECT * FROM find_book('Harry Potter')`
+`SELECT * FROM find_book('Day')`
 
 ## e) add constrains reflecting the business rules
 
