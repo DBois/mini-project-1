@@ -320,14 +320,14 @@ insert into role (name, loan_days, book_limit) values ('Student', 30, 3);
 
 insert into client (id, role_id, name, password, address, no_books) values (1, 2, 'Correna', 'gV3mr9Mkd', '5405 Boyd Circle', 0);
 insert into client (id, role_id, name, password, address, no_books) values (2, 3, 'Kilian', 'tCOIhjkJw', '862 Nelson Road', 0);
-insert into client (id, role_id, name, password, address, no_books) values (3, 2, 'Sela', 'dbAg7U', '2073 Bultman Circle', 0);
+insert into client (id, role_id, name, password, address, no_books) values (3, 3, 'Sela', 'dbAg7U', '2073 Bultman Circle', 0);
 insert into client (id, role_id, name, password, address, no_books) values (4, 3, 'Murielle', 'qfj322', '0 Harbort Trail', 0);
 insert into client (id, role_id, name, password, address, no_books) values (5, 2, 'Theo', 'tDPYDE6Fk', '94492 Holy Cross Hill', 0);
 insert into client (id, role_id, name, password, address, no_books) values (6, 3, 'Winslow', 'pRSy3xrIjAi2', '5 Carioca Drive', 0);
 insert into client (id, role_id, name, password, address, no_books) values (7, 2, 'Edgard', 'ZwyC0PJ', '02675 Welch Avenue', 0);
 insert into client (id, role_id, name, password, address, no_books) values (8, 2, 'Sylas', 'WHmmd2oVg', '62428 Texas Trail', 0);
 insert into client (id, role_id, name, password, address, no_books) values (9, 3, 'Harwilll', '9Owwir4hRPKX', '69 Dixon Circle', 0);
-insert into client (id, role_id, name, password, address, no_books) values (10, 2, 'Annelise', 'zIlstRp8b', '2 Cordelia Center', 0);
+insert into client (id, role_id, name, password, address, no_books) values (10, 3, 'Annelise', 'zIlstRp8b', '2 Cordelia Center', 0);
 insert into client (id, role_id, name, password, address, no_books) values (11, 1, 'Dorise', '7FasI0Xrhmt', '37 Debs Road', 0);
 insert into client (id, role_id, name, password, address, no_books) values (12, 3, 'Gunar', 'q4E5fnP6b', '3413 Valley Edge Court', 0);
 insert into client (id, role_id, name, password, address, no_books) values (13, 2, 'Thomasina', 'DHdGmXKt5puY', '15696 Bluestem Center', 0);
